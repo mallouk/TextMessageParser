@@ -28,9 +28,6 @@ public class MainActivity extends ActionBarActivity {
         smsButton = (Button)findViewById(R.id.smsButton);
 
         String name = "", phoneNumber = "";
-        //String[] columns = {Contacts.People.NAME, Contacts.People.NUMBER};
-        //Uri mContacts = Contacts.People.CONTENT_URI;
-        //Cursor contacts = managedQuery(mContacts, columns, null, null, null);
         Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
         Cursor inbox = this.getContentResolver().query(Uri.parse("content://sms/inbox"),
             null, null, null, null);
@@ -40,7 +37,7 @@ public class MainActivity extends ActionBarActivity {
                 null, null, null, null);
 
         conversation.moveToFirst();
-        String convoThreadID = ";";
+        String convoThreadID = "";
         if (conversation.moveToFirst()){
             convoThreadID = conversation.getString(conversation.getColumnIndex("thread_id")).toString();
         }
@@ -60,7 +57,7 @@ public class MainActivity extends ActionBarActivity {
                 inboxQueryPhoneNum = sent.getString(sent.getColumnIndex("address")).toString();
 
                 Date date = new Date(Long.parseLong(sent.getString(sent.getColumnIndex("date")).toString()));
-                inboxQueryDate = new SimpleDateFormat("MM/dd/yyyy:a:hh:mm").format(date);
+                inboxQueryDate = new SimpleDateFormat("MMMM dd, yyyy:a:hh:mm - EEEE").format(date);
                 inboxQueryMessage = sent.getString(sent.getColumnIndex("body")).toString();
                 inboxQueryPhoneNum = inboxQueryPhoneNum.substring(2, inboxQueryPhoneNum.length()).trim();
 
@@ -75,7 +72,7 @@ public class MainActivity extends ActionBarActivity {
                 inboxQueryPhoneNum = inbox.getString(inbox.getColumnIndex("address")).toString();
 
                 Date date = new Date(Long.parseLong(inbox.getString(inbox.getColumnIndex("date")).toString()));
-                inboxQueryDate = new SimpleDateFormat("MM/dd/yyyy:a:hh:mm").format(date);
+                inboxQueryDate = new SimpleDateFormat("MMMM dd, yyyy:a:hh:mm - EEEE").format(date);
                 inboxQueryMessage = inbox.getString(inbox.getColumnIndex("body")).toString();
                 inboxQueryPhoneNum = inboxQueryPhoneNum.substring(2, inboxQueryPhoneNum.length()).trim();
 
@@ -94,6 +91,7 @@ public class MainActivity extends ActionBarActivity {
         }
 
         final Conversation conversation00 = (Conversation)convo.clone();
+        final String convoName = name;
 
         /*StringBuffer info = new StringBuffer();
         for( int i = 0; i < sent.getColumnCount(); i++) {
@@ -107,10 +105,15 @@ public class MainActivity extends ActionBarActivity {
                 Message one = (Message)conversation00.get(0);
                 Message two = (Message)conversation00.get(1);
                 Message three = (Message)conversation00.get(2);
-                Toast.makeText(getApplicationContext(), conversation00.size() + " " +
-                        one.getActualMessage() + ":" + one.getMessageDate() +  "\n"+
-                        two.getActualMessage() + ":" + two.getMessageDate() +  "\n" +
-                        three.getActualMessage() + ":" + three.getMessageDate() +  "\n",
+                for (int i = 0; i < conversation00.size(); i++){
+                    Message mess = (Message)conversation00.get(i);
+
+                }
+
+                Toast.makeText(getApplicationContext(), convoName + " " + conversation00.size() + " " +
+                                one.getActualMessage() + ":" + one.getMessageDate() + "\n" +
+                                two.getActualMessage() + ":" + two.getMessageDate() + "\n" +
+                                three.getActualMessage() + ":" + three.getMessageDate() + "\n",
                         Toast.LENGTH_LONG).show();
             }
         });
