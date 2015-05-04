@@ -3,6 +3,7 @@ package mallouk.textmessage;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -11,6 +12,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
@@ -105,11 +109,18 @@ public class MainActivity extends ActionBarActivity {
                 Message one = (Message)conversation00.get(0);
                 Message two = (Message)conversation00.get(1);
                 Message three = (Message)conversation00.get(2);
-                for (int i = 0; i < conversation00.size(); i++){
-                    Message mess = (Message)conversation00.get(i);
 
+                File folder = new File(Environment.getExternalStorageDirectory() + "/Download");
+                String fileName = "/Mess.txt";
+                try {
+                    for (int i = 0; i < conversation00.size(); i++){
+                        Message mess = (Message)conversation00.get(i);
+                        PrintWriter printWriter = new PrintWriter(folder + fileName);
+                        printWriter.print("");
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
-
                 Toast.makeText(getApplicationContext(), convoName + " " + conversation00.size() + " " +
                                 one.getActualMessage() + ":" + one.getMessageDate() + "\n" +
                                 two.getActualMessage() + ":" + two.getMessageDate() + "\n" +
