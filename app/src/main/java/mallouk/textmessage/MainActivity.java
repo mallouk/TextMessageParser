@@ -29,73 +29,76 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        smsButton = (Button)findViewById(R.id.smsButton);
+        smsButton = (Button) findViewById(R.id.smsButton);
 
         String name = "", phoneNumber = "";
         Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
         Cursor inbox = this.getContentResolver().query(Uri.parse("content://sms/inbox"),
-            null, null, null, null);
+                null, null, null, null);
         Cursor sent = this.getContentResolver().query(Uri.parse("content://sms/sent"),
                 null, null, null, null);
         Cursor conversation = this.getContentResolver().query(Uri.parse("content://sms/conversations"),
                 null, null, null, null);
 
         conversation.moveToFirst();
-        String convoThreadID = "";
-        if (conversation.moveToFirst()){
-            convoThreadID = conversation.getString(conversation.getColumnIndex("thread_id")).toString();
-        }
-
-        String inboxQueryPhoneNum = "";
-        String inboxQueryDate = "";
-        String inboxQueryMessage = "";
-        String inboxQueryThreadID = "";
-        inbox.moveToFirst();
-        sent.moveToFirst();
-
-        Conversation convo = new Conversation();
-
-        while (sent.moveToNext()) {
-            inboxQueryThreadID = sent.getString(sent.getColumnIndex("thread_id")).toString();
-            if (convoThreadID.equals(inboxQueryThreadID)){
-                inboxQueryPhoneNum = sent.getString(sent.getColumnIndex("address")).toString();
-
-                Date date = new Date(Long.parseLong(sent.getString(sent.getColumnIndex("date")).toString()));
-                inboxQueryDate = new SimpleDateFormat("MMMM dd, yyyy:a:hh:mm - EEEE").format(date);
-                inboxQueryMessage = sent.getString(sent.getColumnIndex("body")).toString();
-                inboxQueryPhoneNum = inboxQueryPhoneNum.substring(2, inboxQueryPhoneNum.length()).trim();
-
-                Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, inboxQueryMessage);
-                convo.add(message);
+        int numConvos = conversation.getCount();
+        int x = 0;
+        Conversation[] convo = new Conversation[numConvos];
+        while (conversation.moveToNext()) {
+            String convoThreadID = "";
+            if (conversation.moveToFirst()) {
+                convoThreadID = conversation.getString(conversation.getColumnIndex("thread_id")).toString();
             }
-        }
 
-        while (inbox.moveToNext()) {
-            inboxQueryThreadID = inbox.getString(inbox.getColumnIndex("thread_id")).toString();
-            if (convoThreadID.equals(inboxQueryThreadID)){
-                inboxQueryPhoneNum = inbox.getString(inbox.getColumnIndex("address")).toString();
+            String inboxQueryPhoneNum = "";
+            String inboxQueryDate = "";
+            String inboxQueryMessage = "";
+            String inboxQueryThreadID = "";
+            inbox.moveToFirst();
+            sent.moveToFirst();
 
-                Date date = new Date(Long.parseLong(inbox.getString(inbox.getColumnIndex("date")).toString()));
-                inboxQueryDate = new SimpleDateFormat("MMMM dd, yyyy:a:hh:mm - EEEE").format(date);
-                inboxQueryMessage = inbox.getString(inbox.getColumnIndex("body")).toString();
-                inboxQueryPhoneNum = inboxQueryPhoneNum.substring(2, inboxQueryPhoneNum.length()).trim();
 
-                Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, inboxQueryMessage);
-                convo.add(message);
+            while (sent.moveToNext()) {
+                inboxQueryThreadID = sent.getString(sent.getColumnIndex("thread_id")).toString();
+                if (convoThreadID.equals(inboxQueryThreadID)) {
+                    inboxQueryPhoneNum = sent.getString(sent.getColumnIndex("address")).toString();
+
+                    Date date = new Date(Long.parseLong(sent.getString(sent.getColumnIndex("date")).toString()));
+                    inboxQueryDate = new SimpleDateFormat("MMMM dd, yyyy:a:hh:mm - EEEE").format(date);
+                    inboxQueryMessage = sent.getString(sent.getColumnIndex("body")).toString();
+                    inboxQueryPhoneNum = inboxQueryPhoneNum.substring(2, inboxQueryPhoneNum.length()).trim();
+
+                    Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, inboxQueryMessage);
+                    convo[x].add(message);
+                }
             }
-        }
-        Collections.sort(convo, new MessageSorter());
 
-        while (phones.moveToNext()){
-            phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            if (phoneNumber.equals(inboxQueryPhoneNum)){
-                name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                break;
+            while (inbox.moveToNext()) {
+                inboxQueryThreadID = inbox.getString(inbox.getColumnIndex("thread_id")).toString();
+                if (convoThreadID.equals(inboxQueryThreadID)) {
+                    inboxQueryPhoneNum = inbox.getString(inbox.getColumnIndex("address")).toString();
+
+                    Date date = new Date(Long.parseLong(inbox.getString(inbox.getColumnIndex("date")).toString()));
+                    inboxQueryDate = new SimpleDateFormat("MMMM dd, yyyy:a:hh:mm - EEEE").format(date);
+                    inboxQueryMessage = inbox.getString(inbox.getColumnIndex("body")).toString();
+                    inboxQueryPhoneNum = inboxQueryPhoneNum.substring(2, inboxQueryPhoneNum.length()).trim();
+
+                    Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, inboxQueryMessage);
+                    convo[x].add(message);
+                }
             }
-        }
+            Collections.sort(convo[x], new MessageSorter());
 
-        final Conversation conversation00 = (Conversation)convo.clone();
-        final String convoName = name;
+            while (phones.moveToNext()) {
+                phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                if (phoneNumber.equals(inboxQueryPhoneNum)) {
+                    name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                    break;
+                }
+            }
+
+            final Conversation conversation00 = (Conversation) convo[x].clone();
+            final String convoName = name;
 
         /*StringBuffer info = new StringBuffer();
         for( int i = 0; i < sent.getColumnCount(); i++) {
@@ -104,30 +107,32 @@ public class MainActivity extends ActionBarActivity {
         Toast.makeText(getApplicationContext(), info.toString(), Toast.LENGTH_LONG).show();*/
 
 
-        smsButton.setOnClickListener(new Button.OnClickListener(){
-            public void onClick(View v) {
-                Message one = (Message)conversation00.get(0);
-                Message two = (Message)conversation00.get(1);
-                Message three = (Message)conversation00.get(2);
+            smsButton.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+                    Message one = (Message) conversation00.get(0);
+                    Message two = (Message) conversation00.get(1);
+                    Message three = (Message) conversation00.get(2);
 
-                File folder = new File(Environment.getExternalStorageDirectory() + "/Download");
-                String fileName = "/Mess.txt";
-                try {
-                    for (int i = 0; i < conversation00.size(); i++){
-                        Message mess = (Message)conversation00.get(i);
-                        PrintWriter printWriter = new PrintWriter(folder + fileName);
-                        printWriter.print("");
+                    File folder = new File(Environment.getExternalStorageDirectory() + "/Download");
+                    String fileName = "/Mess.txt";
+                    try {
+                        for (int i = 0; i < conversation00.size(); i++) {
+                            Message mess = (Message) conversation00.get(i);
+                            PrintWriter printWriter = new PrintWriter(folder + fileName);
+                            printWriter.print("");
+                        }
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
                     }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), convoName + " " + conversation00.size() + " " +
+                                    one.getActualMessage() + ":" + one.getMessageDate() + "\n" +
+                                    two.getActualMessage() + ":" + two.getMessageDate() + "\n" +
+                                    three.getActualMessage() + ":" + three.getMessageDate() + "\n",
+                            Toast.LENGTH_LONG).show();
                 }
-                Toast.makeText(getApplicationContext(), convoName + " " + conversation00.size() + " " +
-                                one.getActualMessage() + ":" + one.getMessageDate() + "\n" +
-                                two.getActualMessage() + ":" + two.getMessageDate() + "\n" +
-                                three.getActualMessage() + ":" + three.getMessageDate() + "\n",
-                        Toast.LENGTH_LONG).show();
-            }
-        });
+            });
+            //x++;
+        }
     }
 
     class MessageSorter implements Comparator<Message>{
