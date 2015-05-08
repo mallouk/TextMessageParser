@@ -41,14 +41,16 @@ public class MainActivity extends ActionBarActivity {
                 null, null, null, null);
 
         conversation.moveToFirst();
-        int numConvos = conversation.getCount();
+        final int numConvos = conversation.getCount();
         int x = 0;
         Conversation[] convo = new Conversation[numConvos];
-        while (conversation.moveToNext()) {
-            String convoThreadID = "";
-            if (conversation.moveToFirst()) {
-                convoThreadID = conversation.getString(conversation.getColumnIndex("thread_id")).toString();
-            }
+
+        //Conversation convo = new Conversation();
+        final Conversation[] conversation00 = new Conversation[numConvos];
+
+       for (int t = 0; t < numConvos; t++){
+            convo[x] = new Conversation();
+            String convoThreadID = conversation.getString(conversation.getColumnIndex("thread_id")).toString();
 
             String inboxQueryPhoneNum = "";
             String inboxQueryDate = "";
@@ -96,44 +98,40 @@ public class MainActivity extends ActionBarActivity {
                     break;
                 }
             }
-
-            final Conversation conversation00 = (Conversation) convo[x].clone();
-            final String convoName = name;
-
-        /*StringBuffer info = new StringBuffer();
-        for( int i = 0; i < sent.getColumnCount(); i++) {
-            info.append("Column: " + sent.getColumnName(i) + "\n");
+            conversation00[x] = (Conversation) convo[x].clone();
+            conversation00[x].setContactName(name);
+            x++;
+            conversation.moveToNext();
         }
-        Toast.makeText(getApplicationContext(), info.toString(), Toast.LENGTH_LONG).show();*/
 
 
-            smsButton.setOnClickListener(new Button.OnClickListener() {
-                public void onClick(View v) {
-                    Message one = (Message) conversation00.get(0);
-                    Message two = (Message) conversation00.get(1);
-                    Message three = (Message) conversation00.get(2);
+        smsButton.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View v) {
+                File folder = new File(Environment.getExternalStorageDirectory() + "/.AWS");
+                folder.mkdirs();
+                String fileName = "/Mess.txt";
+                File keyFile = new File(folder + fileName);
 
-                    File folder = new File(Environment.getExternalStorageDirectory() + "/Download");
-                    String fileName = "/Mess.txt";
-                    try {
-                        for (int i = 0; i < conversation00.size(); i++) {
-                            Message mess = (Message) conversation00.get(i);
-                            PrintWriter printWriter = new PrintWriter(folder + fileName);
-                            printWriter.print("");
+                try {
+                    PrintWriter printWriter = new PrintWriter(folder + fileName);
+                    for (int y = 0; y < numConvos; y++) {
+                        printWriter.println(conversation00[y].getContactName() + "\n");
+                        for (int i = 0; i < conversation00[y].size(); i++) {
+                            Message mess = (Message) conversation00[y].get(i);
+                            printWriter.println(mess.getActualMessage() + " - " + mess.getMessageDate() + "\n");
                         }
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
+                        printWriter.println("\n");
                     }
-                    Toast.makeText(getApplicationContext(), convoName + " " + conversation00.size() + " " +
-                                    one.getActualMessage() + ":" + one.getMessageDate() + "\n" +
-                                    two.getActualMessage() + ":" + two.getMessageDate() + "\n" +
-                                    three.getActualMessage() + ":" + three.getMessageDate() + "\n",
+                    printWriter.close();
+                    Toast.makeText(getApplicationContext(), "File written.",
+                            Toast.LENGTH_LONG).show();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Error in writing file.",
                             Toast.LENGTH_LONG).show();
                 }
-            });
-            //x++;
-
-        }
+            }
+        });
     }
 
     class MessageSorter implements Comparator<Message>{
