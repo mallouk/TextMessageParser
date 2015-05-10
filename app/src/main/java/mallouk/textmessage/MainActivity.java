@@ -68,7 +68,6 @@ public class MainActivity extends ActionBarActivity {
             inbox.moveToFirst();
             sent.moveToFirst();
 
-
             while (sent.moveToNext()){
                 inboxQueryThreadID = sent.getString(sent.getColumnIndex("thread_id")).toString();
                 if (convoThreadID.equals(inboxQueryThreadID)) {
@@ -80,7 +79,8 @@ public class MainActivity extends ActionBarActivity {
                     formattedDate = new SimpleDateFormat("*- EEEE- MMMM dd, yyyy - hh:mm a -").format(date).toString();
                     inboxQueryPhoneNum = inboxQueryPhoneNum.substring(inboxQueryPhoneNum.length() - 10,
                             inboxQueryPhoneNum.length()).trim();
-                    Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, formattedDate, inboxQueryMessage);
+                    Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, formattedDate,
+                            inboxQueryMessage, "sent");
                     convo[t].add(message);
                 }
             }
@@ -96,7 +96,8 @@ public class MainActivity extends ActionBarActivity {
                     inboxQueryMessage = inbox.getString(inbox.getColumnIndex("body")).toString();
                     inboxQueryPhoneNum = inboxQueryPhoneNum.substring(inboxQueryPhoneNum.length() - 10,
                             inboxQueryPhoneNum.length()).trim();
-                    Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, formattedDate, inboxQueryMessage);
+                    Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, formattedDate,
+                            inboxQueryMessage, "rec");
                     convo[t].add(message);
                 }
             }
@@ -148,7 +149,8 @@ public class MainActivity extends ActionBarActivity {
 
                         for (int i = 0; i < conversation00[y].size(); i++) {
                             Message mess = (Message) conversation00[y].get(i);
-                            printWriter.write("      " + mess.getFormattedDate() + mess.getActualMessage() + "- \n");
+                            printWriter.write("      " + mess.getFormattedDate() + mess.getActualMessage() + "-" +
+                                    mess.getMessageType() + "-\n");
                         }
                         printWriter.write("\n\n\n");
                         printWriter.flush();
