@@ -7,8 +7,15 @@
         android:layout_height="wrap_content"
         android:text="Sms Button"
         android:id="@+id/smsButton"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="33dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/listView"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/smsButton" />
 
 </RelativeLayout>

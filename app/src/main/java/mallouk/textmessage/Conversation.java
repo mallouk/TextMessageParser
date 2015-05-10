@@ -7,9 +7,17 @@ import java.util.ArrayList;
  */
 public class Conversation extends ArrayList {
 
+    private String contactName;
+
     public Conversation(){
 
     }
 
+    public void setContactName(String contactName){
+        this.contactName = contactName;
+    }
 
+    public String getContactName(){
+        return this.contactName;
+    }
 }
