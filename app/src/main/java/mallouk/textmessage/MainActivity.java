@@ -9,7 +9,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -45,14 +47,12 @@ public class MainActivity extends ActionBarActivity {
 
         conversation.moveToFirst();
         final int numConvos = conversation.getCount();
-        //Toast.makeText(getApplicationContext(), conversation.getCount() + "", Toast.LENGTH_LONG).show();
 
         int x = 0;
         Conversation[] convo = new Conversation[numConvos];
 
         final Conversation[] conversation00 = new Conversation[numConvos];
         String[] contactNames = new String[numConvos];
-        String[] contactNames1 = new String[phones.getCount()];
         phones.moveToFirst();
 
         for (int t = 0; t < numConvos; t++){
@@ -62,6 +62,7 @@ public class MainActivity extends ActionBarActivity {
 
             String inboxQueryPhoneNum = "";
             String inboxQueryDate = "";
+            String formattedDate = "";
             String inboxQueryMessage = "";
             String inboxQueryThreadID = "";
             inbox.moveToFirst();
@@ -76,9 +77,10 @@ public class MainActivity extends ActionBarActivity {
                     Date date = new Date(Long.parseLong(sent.getString(sent.getColumnIndex("date")).toString()));
                     inboxQueryDate = new SimpleDateFormat("yyyy/MM/dd:a:hh:mm - EEEE - MMMM").format(date);
                     inboxQueryMessage = sent.getString(sent.getColumnIndex("body")).toString();
+                    formattedDate = new SimpleDateFormat("*- EEEE- MMMM dd, yyyy - hh:mm a -").format(date).toString();
                     inboxQueryPhoneNum = inboxQueryPhoneNum.substring(inboxQueryPhoneNum.length() - 10,
                             inboxQueryPhoneNum.length()).trim();
-                    Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, inboxQueryMessage);
+                    Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, formattedDate, inboxQueryMessage);
                     convo[t].add(message);
                 }
             }
@@ -90,11 +92,11 @@ public class MainActivity extends ActionBarActivity {
 
                     Date date = new Date(Long.parseLong(inbox.getString(inbox.getColumnIndex("date")).toString()));
                     inboxQueryDate = new SimpleDateFormat("yyyy/MM/dd:a:hh:mm - EEEE - MMMM").format(date);
+                    formattedDate = new SimpleDateFormat("*- EEEE- MMMM dd, yyyy - hh:mm a -").format(date).toString();
                     inboxQueryMessage = inbox.getString(inbox.getColumnIndex("body")).toString();
                     inboxQueryPhoneNum = inboxQueryPhoneNum.substring(inboxQueryPhoneNum.length() - 10,
                             inboxQueryPhoneNum.length()).trim();
-
-                    Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, inboxQueryMessage);
+                    Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, formattedDate, inboxQueryMessage);
                     convo[t].add(message);
                 }
             }
@@ -121,32 +123,14 @@ public class MainActivity extends ActionBarActivity {
             }
             conversation00[t] = (Conversation) convo[x].clone();
             conversation00[t].setContactName(name);
-
+            contactNames[x] = name;
             x++;
             conversation.moveToNext();
         }
 
-      /*  for (int u = 0; u < phones.getCount(); u++){
-            phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            phoneNumber = phoneNumber.replace(" ", "");
-            phoneNumber = phoneNumber.replace("(", "");
-            phoneNumber = phoneNumber.replace(")", "");
-            phoneNumber = phoneNumber.replace("-", "");
-            phoneNumber = phoneNumber.replace("+1", "");
-            phoneNumber = phoneNumber.replace("+0", "");
-            *//*if (!phoneNumber.contains("*")){
-                phoneNumber = phoneNumber.substring(phoneNumber.length() - 10,
-                        phoneNumber.length()).trim();
-            }*//*
-
-            name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            contactNames1[u] = phoneNumber + ":" +  name;
-            phones.moveToNext();
-        }
-
         ListAdapter list = new ArrayAdapter<String>(getApplicationContext(),
-                android.R.layout.simple_list_item_multiple_choice, contactNames1);
-        listView.setAdapter(list);*/
+                android.R.layout.simple_list_item_multiple_choice, contactNames);
+        listView.setAdapter(list);
 
         smsButton.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
@@ -158,24 +142,24 @@ public class MainActivity extends ActionBarActivity {
                 try {
                     FileWriter fw = new FileWriter(folder + fileName);
                     BufferedWriter printWriter = new BufferedWriter(fw);
-                    int x = 0;
                     for (int y = 0; y < numConvos; y++) {
-                        printWriter.write(y + "/" + numConvos + " " + conversation00[y].getContactName() + "\n");
+                        printWriter.write(")-" + conversation00[y].getContactName() + "-" + "\n");
+                        printWriter.write("/001" + "\n");
+
                         for (int i = 0; i < conversation00[y].size(); i++) {
                             Message mess = (Message) conversation00[y].get(i);
-                            printWriter.write(mess.getActualMessage() + " - " + mess.getMessageDate() + "\n");
+                            printWriter.write("      " + mess.getFormattedDate() + mess.getActualMessage() + "- \n");
                         }
                         printWriter.write("\n\n\n");
                         printWriter.flush();
-                        x = y;
                     }
 
                     printWriter.close();
-                    Toast.makeText(getApplicationContext(), "File written." + x,
+                    Toast.makeText(getApplicationContext(), "File written.",
                             Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(getApplicationContext(), "Error in writing file.",
+                    Toast.makeText(getApplicationContext(), e.getMessage(),
                             Toast.LENGTH_LONG).show();
                 }
             }
