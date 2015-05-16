@@ -68,13 +68,18 @@ public class MainActivity extends ActionBarActivity {
                     phoneNumber = phoneNumber.replace("+1", "");
                     phoneNumber = phoneNumber.replace("+0", "");
                     name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                    contactList.add(new PhoneContact(name, phoneNumber, ""));
 
+                    if (phoneNumber.length() == 10) {
+                        phoneNumber = "(" + phoneNumber.substring(0, 3) + ") " + phoneNumber.substring(3, 6) + "-" +
+                               phoneNumber.substring(6, phoneNumber.length());
+                        contactList.add(new PhoneContact(name, phoneNumber, ""));
+                    }
                     phones.moveToNext();
                 }
+                Collections.sort(contactList, new ContactSorter());
 
+                File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "");
 
-                File folder = new File(Environment.getExternalStorageDirectory() + "/.AWS");
                 folder.mkdirs();
                 String fileName = "/ContactsBackup.txt";
                 File keyFile = new File(folder + fileName);
@@ -83,8 +88,8 @@ public class MainActivity extends ActionBarActivity {
                     FileWriter fw = new FileWriter(folder + fileName);
                     BufferedWriter printWriter = new BufferedWriter(fw);
                     for (int y = 0; y < contactList.size(); y++) {
-                        printWriter.write(contactList.get(y).getContactName() +  "---" +
-                                contactList.get(y).getContactNumber() + "---" + contactList.get(y).getContactBirthday() + "\n");
+                        printWriter.write(contactList.get(y).getContactName() +  " ::: " +
+                                contactList.get(y).getContactNumber() + " ::: " + contactList.get(y).getContactBirthday() + "\n");
                         printWriter.flush();
                     }
 
@@ -191,7 +196,7 @@ public class MainActivity extends ActionBarActivity {
 
 
 
-                File folder = new File(Environment.getExternalStorageDirectory() + "/.AWS");
+                File folder = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "");
                 folder.mkdirs();
                 String fileName = "/Mess.txt";
                 File keyFile = new File(folder + fileName);
@@ -231,6 +236,12 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    class ContactSorter implements Comparator<PhoneContact>{
+        @Override
+        public int compare(PhoneContact o1, PhoneContact o2) {
+            return o1.getContactName().compareTo(o2.getContactName());
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
