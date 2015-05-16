@@ -5,17 +5,19 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sms Button"
+        android:text="Write SMS Data to File"
         android:id="@+id/smsButton"
         android:layout_marginTop="33dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
-    <ListView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/listView"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/smsButton" />
+        android:text="Back up Contacts"
+        android:id="@+id/backupContacts"
+        android:layout_marginTop="65dp"
+        android:layout_below="@+id/smsButton"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
