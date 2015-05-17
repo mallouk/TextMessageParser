@@ -106,7 +106,7 @@ public class MainActivity extends ActionBarActivity {
 
         smsButton.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Processing SMS Messages....", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "Processing SMS Messages....", Toast.LENGTH_LONG).show();
 
                 String name = "", phoneNumber = "";
                 conversation.moveToFirst();
