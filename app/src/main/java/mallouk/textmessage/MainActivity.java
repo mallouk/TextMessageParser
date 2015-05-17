@@ -55,6 +55,7 @@ public class MainActivity extends ActionBarActivity {
         backupContactsButton.setOnClickListener(new Button.OnClickListener(){
             public void onClick(View v){
 
+
                 String name = "", phoneNumber = "";
                 phones.moveToFirst();
                 ArrayList<PhoneContact> contactList = new ArrayList<PhoneContact>();
@@ -72,7 +73,7 @@ public class MainActivity extends ActionBarActivity {
                     if (phoneNumber.length() == 10) {
                         phoneNumber = "(" + phoneNumber.substring(0, 3) + ") " + phoneNumber.substring(3, 6) + "-" +
                                phoneNumber.substring(6, phoneNumber.length());
-                        contactList.add(new PhoneContact(name, phoneNumber, ""));
+                        contactList.add(new PhoneContact(name, phoneNumber));
                     }
                     phones.moveToNext();
                 }
@@ -88,11 +89,10 @@ public class MainActivity extends ActionBarActivity {
                     FileWriter fw = new FileWriter(folder + fileName);
                     BufferedWriter printWriter = new BufferedWriter(fw);
                     for (int y = 0; y < contactList.size(); y++) {
-                        printWriter.write(contactList.get(y).getContactName() +  " ::: " +
-                                contactList.get(y).getContactNumber() + " ::: " + contactList.get(y).getContactBirthday() + "\n");
+                        printWriter.write(contactList.get(y).getContactName() +  "\t" +
+                                contactList.get(y).getContactNumber() + "\n");
                         printWriter.flush();
                     }
-
                     printWriter.close();
                     Toast.makeText(getApplicationContext(), "File written to Downloads folder.",
                             Toast.LENGTH_SHORT).show();
@@ -135,11 +135,11 @@ public class MainActivity extends ActionBarActivity {
                             inboxQueryPhoneNum = sent.getString(sent.getColumnIndex("address")).toString();
 
                             Date date = new Date(Long.parseLong(sent.getString(sent.getColumnIndex("date")).toString()));
-                            inboxQueryDate = new SimpleDateFormat("yyyy/MM/dd:a:hh:mm - EEEE - MMMM").format(date);
+                            inboxQueryDate = new SimpleDateFormat("yyyy/MM/dd:a:hh:mm:ss - EEEE - MMMM").format(date);
                             inboxQueryMessage = sent.getString(sent.getColumnIndex("body")).toString();
                             inboxQueryMessage = inboxQueryMessage.replace("\n", " ");
 
-                            formattedDate = new SimpleDateFormat("*- EEEE- MMMM dd, yyyy - hh:mm a -").format(date).toString();
+                            formattedDate = new SimpleDateFormat("*- EEEE- MMMM dd, yyyy - hh:mm:ss a -").format(date).toString();
                             inboxQueryPhoneNum = inboxQueryPhoneNum.substring(inboxQueryPhoneNum.length() - 10,
                                     inboxQueryPhoneNum.length()).trim();
                             Message message = new Message("", inboxQueryPhoneNum, inboxQueryDate, formattedDate,
@@ -154,8 +154,8 @@ public class MainActivity extends ActionBarActivity {
                             inboxQueryPhoneNum = inbox.getString(inbox.getColumnIndex("address")).toString();
 
                             Date date = new Date(Long.parseLong(inbox.getString(inbox.getColumnIndex("date")).toString()));
-                            inboxQueryDate = new SimpleDateFormat("yyyy/MM/dd:a:hh:mm - EEEE - MMMM").format(date);
-                            formattedDate = new SimpleDateFormat("*- EEEE- MMMM dd, yyyy - hh:mm a -").format(date).toString();
+                            inboxQueryDate = new SimpleDateFormat("yyyy/MM/dd:a:hh:mm:ss - EEEE - MMMM").format(date);
+                            formattedDate = new SimpleDateFormat("*- EEEE- MMMM dd, yyyy - hh:mm:ss a -").format(date).toString();
                             inboxQueryMessage = inbox.getString(inbox.getColumnIndex("body")).toString();
                             inboxQueryMessage = inboxQueryMessage.replace("\n", " ");
 
@@ -239,7 +239,7 @@ public class MainActivity extends ActionBarActivity {
     class ContactSorter implements Comparator<PhoneContact>{
         @Override
         public int compare(PhoneContact o1, PhoneContact o2) {
-            return o1.getContactName().compareTo(o2.getContactName());
+            return o1.getContactName().compareToIgnoreCase(o2.getContactName());
         }
     }
 
